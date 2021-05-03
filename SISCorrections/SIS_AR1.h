@@ -18,7 +18,7 @@ extern vector < size_t > vect_obs_N;
 
 
 int ar1();
-//int sis();
+int sis();
 
 
 #endif

@@ -11,7 +11,7 @@ using namespace std;
 
 const double sigmasq = 1;
 const float phi = 0.5;
-const float p = 0.2;
+const float p = 0.1;
 const double N = 30;
 
 vector < double > X;

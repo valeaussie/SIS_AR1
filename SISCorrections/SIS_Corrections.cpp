@@ -22,7 +22,7 @@ void print_vector(vector < size_t > V);
 //and for the sampled observations with substitutions
 //Finally I calculate the weights.
 
-int main() {
+int sis() {
 
 	random_device rd;
 	mt19937 generator(rd());
@@ -44,7 +44,7 @@ int main() {
 	//define the container for the normalised weights
 	vector < vector < vector < double > > > weights;
 	//define the number of particles
-	double n = 1000;
+	double n = 100;
 
 	//Sampling from a normal distribution with mean 0
 	//and variance sigma^2/(1-phi^2) for every particle

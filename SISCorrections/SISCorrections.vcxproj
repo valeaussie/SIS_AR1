@@ -128,6 +128,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AR1_model.cpp" />
+    <ClCompile Include="AR1_sim_and_int.cpp" />
     <ClCompile Include="SIS_Corrections.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

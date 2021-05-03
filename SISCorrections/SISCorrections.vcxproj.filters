@@ -26,5 +26,8 @@
     <ClCompile Include="SIS_Corrections.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AR1_sim_and_int.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
