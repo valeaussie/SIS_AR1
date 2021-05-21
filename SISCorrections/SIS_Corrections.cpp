@@ -10,10 +10,10 @@
 
 using namespace std;
 
-void print_matrix(vector < vector < size_t > > m);
-void print_matrix(vector < vector < double > > M);
-void print_vector(vector < double > v);
-void print_vector(vector < size_t > V);
+void F_print_matrix(vector < vector < size_t > > m);
+void F_print_matrix(vector < vector < double > > M);
+void F_print_vector(vector < double > v);
+void F_print_vector(vector < size_t > V);
 
 //This is the code for the method:
 //Firstly I calculate the lower triangular 3-dimentional matrices called for the sampled events
@@ -22,7 +22,8 @@ void print_vector(vector < size_t > V);
 //and for the sampled observations with substitutions
 //Finally I calculate the weights.
 
-int sis() {
+
+int main() {
 
 	random_device rd;
 	mt19937 generator(rd());
@@ -34,9 +35,7 @@ int sis() {
 
 	//define the container for the sampled events and the sampled observations (0s and 1s)
 	vector < vector < vector < double > > > sample;
-	vector < vector < vector < size_t > > > sam_obs;
 	//define the container for the new sampled events and the new sampled observations (0s and 1s)
-	vector < vector < vector < size_t > > > new_sam_obs;
 	vector < vector < vector < double > > > new_sample;
 	vector < vector < vector < double > > > resampled;
 	//define the containter for the unnormalised weights
@@ -57,7 +56,7 @@ int sis() {
 		vector_y0.push_back(normalDist(generator));
 	}
 
-	//Sampling for every particle from a normal distribution centred in the previous event times phi
+	//Sampling for every particle from a normal distribution centred at the previous event times phi
 	//and with variance sigma^2, filling the container "sample".
 	//Making the substitiution every time I have an observation in real life,
 	//filling the container for the new updated events "new_sample".
@@ -103,59 +102,17 @@ int sis() {
 		matrix_new_sample.clear();
 	}
 
-	//Sampling for every particle from a bernoulli distribution with probability p
-	//filling the container of the sampled observations "sam_obs".
-	//Substituting a0 with a 1 every time I have an observation in real life,
-	//filling the matrix of updated sampled observations "new_sam_obs"
-	for (size_t j = 0; j < n; j++) {
-		vector < vector < size_t > > matrix_obs;
-		vector < vector < size_t > > matrix_new_obs;
-		vector < size_t > row_matrix_obs;
-		vector < size_t > row_matrix_new_obs;
-		for (size_t i = 0; i < N; i++) {
-			vector < size_t > row_obs;
-			row_obs = obs[i];
-			bernoulli_distribution BerDist(p);
-			double gen = BerDist(generator);
-			row_matrix_obs.push_back(0);
-			row_matrix_new_obs.push_back(0);
-			for (size_t k = 0; k < i + 1; k++) {
-				if (row_obs[k] == 1) {
-					row_matrix_new_obs[k] = 1;
-				}
-				else if (row_obs[k] == 0) {
-					row_matrix_obs[k] = gen;
-				}
-			}
-			for (size_t k = 0; k < i + 1; k++) {
-				if (row_obs[k] == 0 && row_matrix_obs[k] == 1) {
-					row_matrix_new_obs[k] = 0;
-				}
-				else if (row_obs[k] == 0 && row_matrix_obs[k] == 0) {
-					row_matrix_new_obs[k] = 0;
-				}
-			}
-			matrix_obs.push_back(row_matrix_obs);
-			matrix_new_obs.push_back(row_matrix_new_obs);
-		}
-		for (size_t i = 0; i < N - 1; i++) {
-			for (size_t k = 0; k < i + 1; k++) {
-				if (matrix_new_obs[i][k] == 1) {
-					matrix_obs[i + 1][k] = matrix_new_obs[i][k];
-				}
-			}
-		}
-		row_matrix_obs.clear();
-		row_matrix_new_obs.clear();
-		sam_obs.push_back(matrix_obs);
-		new_sam_obs.push_back(matrix_new_obs);
-		matrix_obs.clear();
-		matrix_new_obs.clear();
-	}
+	//for (size_t lin = 0; lin < n; lin++) {
+	//	for (size_t col = 0; col < N; col++) {
+	//		cout << new_sample[N - 1][lin][col] << endl;
+	//	}
+	//}
+
+
 
 	//Finding the unnormalised weights (using log then exponentiating)
 	//filling the container "un_weights".
-	//This is an important part of the code, should be always sure it is correct.
+	//This is an important part of the code, ensure it is correct.
 
 	vector < vector < vector < double > > > tresampled;
 	for (size_t j = 0; j < N; j++) {
@@ -166,12 +123,8 @@ int sis() {
 			vector < double > vector_log_den;
 			vector < double > row_sample;
 			row_sample = sample[i][j];
-			vector < size_t > row_obs;
-			row_obs = sam_obs[i][j];
 			vector < double > row_new_sample;
 			row_new_sample = new_sample[i][j];
-			vector < size_t > row_new_obs;
-			row_new_obs = new_sam_obs[i][j];
 			for (size_t k = 0; k < j + 1; k++) {
 				double w{ 1 };
 				double num{ 0 };
@@ -184,10 +137,6 @@ int sis() {
 					num = ((row_new_sample[k] - phi * row_new_sample[k - 1]) * (row_new_sample[k] - phi * row_new_sample[k - 1]));
 					den = ((row_sample[k] - phi * row_sample[k - 1]) * (row_sample[k] - phi * row_sample[k - 1]));
 				}
-				if (k == 0) {}
-				else if (row_new_obs[k] == row_obs[k]) {}
-				else if (row_new_obs[k] == 1 && row_obs[k] == 0) { num = num + log(p); den = den + log(1 - p); }
-				else { num = num + log(1 - p); den = den + log((p)); }
 				vector_log_num.push_back(num);
 				vector_log_den.push_back(den);
 				double sum_num = accumulate(vector_log_num.begin(), vector_log_num.end(), 0.0);
@@ -241,15 +190,24 @@ int sis() {
 	//Create .csv files for the plots
 
 	//Create a .csv file with the resampled particles
-	ofstream outFile3("./resampled.csv");
-	outFile3 << endl;
-	for (size_t lin = 0; lin < n; lin++) {
-		for (size_t col = 0; col < N; col++) {
-			outFile3 << resampled[N - 1][lin][col] << ",";
-		}
-		outFile3 << endl;
+	ofstream outFile("./resampled_000.csv");
+		outFile << endl;
+		for (size_t lin = 0; lin < n; lin++) {
+			for (size_t col = 0; col < N; col++) {
+				outFile << resampled[N - 1][lin][col] << ",";
+			}
+		outFile << endl;
 	}
-	outFile3.close();
+	outFile.close();
+
+	//create a .csv file containing the parameters
+	ofstream outparam("./parameters.csv");
+	outparam << "sigmasq" << "," << "phi" << "," << "p" << "," << "N" << "," << "part" << endl;
+	outparam << sigmasq << "," << phi << "," << p << "," << N << "," << n << "," << endl;
+	outparam.close();
+
+
+	gold();
 
 	return 0;
 
@@ -257,32 +215,3 @@ int sis() {
 
 
 
-//functions definitions
-
-//this function prints a matrix of unsigned size_t
-void print_matrix(vector < vector < size_t > > m) {
-	for (const vector < size_t > v : m) {
-		for (size_t x : v) cout << x << ' ';
-		cout << endl;
-	}
-}
-
-//this function prints a matrix of signed doubles
-void print_matrix(vector < vector < double > > M) {
-	for (const vector < double > v : M) {
-		for (double x : v) cout << x << ' ';
-		cout << endl;
-	}
-}
-
-//this function prints a vector of doubles
-void print_vector(vector < double > v) {
-	for (const double x : v) cout << x << ' ';
-	cout << endl;
-}
-
-//this function prints a vector of doubles
-void print_vector(vector < size_t > V) {
-	for (const size_t x : V) cout << x << ' ';
-	cout << endl;
-}

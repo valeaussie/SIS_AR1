@@ -74,9 +74,9 @@ int ar1() {
 	vect_obs_N = obs[N - 1];
 
 	//Creating a dat file with the values of the vector of the observed events "vect_obs_N"
-	//at the current time N calling it "real_data.dat"
-	ofstream outFile1("./real_data.dat");
-	outFile1 << endl;
+	//at the current time N calling it "vector_Z.dat"
+	ofstream outFile1("./vector_Z_000.dat");
+	//outFile1 << endl;
 	for (double n : vect_obs_N) {
 		outFile1 << n << endl;
 	}
@@ -84,8 +84,8 @@ int ar1() {
 
 	//Creating a dat file with the values of X
 	//calling it "vector_X.dat""
-	std::ofstream outFile2("./vector_X.dat");
-	outFile2 << endl;
+	std::ofstream outFile2("./vector_X_000.dat");
+	//outFile2 << endl;
 	for (double n : X) {
 		outFile2 << n << endl;
 	}
