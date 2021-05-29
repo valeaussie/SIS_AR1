@@ -9,10 +9,10 @@
 
 using namespace std;
 
-void F_print_matrix(vector < vector < size_t > > m);
+void F_print_matrix(vector < vector < int > > m);
 void F_print_matrix(vector < vector < double > > M);
 void F_print_vector(vector < double > v);
-void F_print_vector(vector < size_t > v);
+void F_print_vector(vector < int > v);
 void F_outExp(vector <double> exp);
 void F_outVar(vector <double> var);
 double F_den(int m, int tau, double phi);
@@ -459,28 +459,28 @@ int gold() {
 //*********** FUNCTIONS ***************
 
 //Prints a matrix of unsigned size_t
-void F_print_matrix ( vector < vector < size_t > > m ){
-  for ( const vector < size_t > v : m ){
-	for  ( size_t x : v ) cout << x << ' ';
-	cout << endl;
-  }
+void F_print_matrix ( vector < vector < int > > m ){
+	for ( const vector < int > v : m ){
+		for  ( int x : v ) cout << x << ' ';
+		cout << endl;
+	}
 }
 //Prints a matrix of signed doubles
 void F_print_matrix ( vector < vector < double > > M ){
-  for ( const vector < double > v : M ){
-	for  ( double x : v ) cout << x << ' ';
-	cout << endl;
-  }
+	for ( const vector < double > v : M ){
+		for  ( double x : v ) cout << x << ' ';
+		cout << endl;
+	}
 }
 //Prints a vector of doubles
 void F_print_vector ( vector < double > v ){
-  for ( const double x : v ) cout << x << ' ';
-  cout << endl;
-  }
+	for ( const double x : v ) cout << x << ' ';
+	cout << endl;
+ }
 
 //Prints a vector of doubles
-void F_print_vector(vector < size_t > v) {
-	for (const size_t x : v) cout << x << ' ';
+void F_print_vector(vector < int > v) {
+	for ( const size_t x : v ) cout << x << ' ';
 	cout << endl;
 }
 
