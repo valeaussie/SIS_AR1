@@ -10,7 +10,7 @@
 using namespace std;
 
 const double sigmasq = 1;
-const float phi = 0.99;
+const float phi = -0.9;
 const float p = 0.1;
 const double N = 30;
 
@@ -37,11 +37,11 @@ int ar1() {
 	mt19937 generator(rd());
 
 	//draw from a normal distribution to simulate the AR(1) model. Store in a vector "X"
-	normal_distribution < double > normal1(0, sigmasq / (1 - phi * phi));
+	normal_distribution < double > normal1(0, (sigmasq / (1 - pow(phi, 2) ) ) );
 	X.push_back(normal1(generator));
 
 	for (size_t i = 1; i < N; i++) {
-		normal_distribution < double > normal2(phi * X[i - 1], sigmasq);
+		normal_distribution < double > normal2( (phi * X[i - 1] ), sigmasq);
 		X.push_back(normal2(generator));
 	}
 

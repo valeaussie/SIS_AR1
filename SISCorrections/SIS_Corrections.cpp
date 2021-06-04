@@ -53,10 +53,10 @@ int main() {
 	//here we make the assumption that the first nest is never observed
 	//therefore I don't need to make a correction at initialization
 	for (int i = 0; i < n; i++) {
-		normal_distribution < double > normalDist(0, sigmasq / (1 - phi * phi));
+		normal_distribution < double > normalDist1(0, sigmasq / (1 - pow(phi, 2) ) );
 		un_weights[i][0] = 1;
 		weights[i][0] = 1.0 / n;
-		sample[0][0][i] = normalDist(generator);
+		sample[0][0][i] = normalDist1(generator);
 		corr_sample[0][0][i] = sample[0][0][i];
 	}
  
@@ -65,8 +65,8 @@ int main() {
 		for (int i = 0; i < n; i++) {
 			vector < double > sum_vec;
 			//draw the next value for x from the transition distribution
-			normal_distribution < double > normalDist(phi * (corr_sample[j][j-1][i]), sigmasq);
-			sample[j][j][i] = normalDist(generator);
+			normal_distribution < double > normalDist2( (phi * (resampled[j-1][j-1][i]) ), sigmasq);
+			sample[j][j][i] = normalDist2(generator);
 			corr_sample[j][j][i] = sample[j][j][i];
 			for (int k = 1; k < j + 1; k++) {
 				sample[j][k - 1][i] = corr_sample[j - 1][k - 1][i];
@@ -98,31 +98,46 @@ int main() {
 		for (int i = 0; i < n; i++) {
 			drawing_vector[i] = weights[i][j];
 		}
-		//F_print_vector(drawing_vector);
 		for (int k = 0; k < j + 1; k++){
 			for (int i = 0; i < n; i++) {
 				discrete_distribution < int > discrete(drawing_vector.begin(), drawing_vector.end());
 				resampled[j][k][i] = corr_sample[j][k][discrete(generator)];
 			}
 		}
-	} 
+	}
 
-	
+	/*
+	cout << "sample" << endl;
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < n; j++) {
 			cout << sample[29][i][j] << " ";
 		}
 		cout << endl;
 	}
+	cout << "corr_sample 1" << endl;
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < n; j++) {
 			cout << corr_sample[29][i][j] << " ";
 		}
 		cout << endl;
 	}
+	cout << "corr_sample 2" << endl;
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < n; j++) {
+			cout << corr_sample[28][i][j] << " ";
+		}
+		cout << endl;
+	}
+	cout << "resampled" << endl;
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < n; j++) {
+			cout << resampled[29][i][j] << " ";
+		}
+		cout << endl;
+	}
 	cout << "matrix B" << endl;
 	F_print_matrix(mat_B);
-
+	*/
 
 	//Create a .csv file with the resampled particles (transposing)
 	ofstream outFile("./resampled_000.csv");
