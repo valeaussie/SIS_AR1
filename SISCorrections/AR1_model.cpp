@@ -10,7 +10,7 @@
 using namespace std;
 
 const double sigmasq = 1;
-const float phi = -0.9;
+const float phi = -0.5;
 const float p = 0.1;
 const double N = 30;
 
@@ -73,8 +73,8 @@ int ar1() {
 		vect_obs_N.push_back(i);
 	}
 
-	//for simplicity we assume we neve observe the first element
-	mat_B[0][0] = 0;
+	//for simplicity we assume we always observe the first element
+	mat_B[0][0] = 1;
 	
 
 

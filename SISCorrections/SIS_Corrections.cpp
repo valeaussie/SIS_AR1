@@ -28,22 +28,24 @@ int main() {
 	random_device rd;
 	mt19937 generator(rd());
 
+	//this function is the realisation of the AR(1) model
+	//it is generated in AR1_model.cpp
 	ar1();
 
 
 	//DEFINITIONS
 
 	//define the number of particles
-	int n = 1000;
+	int n = 100;
 	//define the container for the sampled events and the sampled observations (0s and 1s)
 	vector < vector < vector < double > > > sample(N, vector < vector < double > > (N, vector < double > (n, 0.0)));
 	//define the container for the new sampled events and the new sampled observations (0s and 1s)
-	vector < vector < vector < double > > > corr_sample(N, vector < vector < double > >(N, vector < double > (n, 0.0)));
-	vector < vector < vector < double > > > resampled(N, vector < vector < double > >(N, vector < double > (n, 0.0)));
+	vector < vector < vector < double > > > corr_sample(N, vector < vector < double > > (N, vector < double > (n, 0.0)));
+	vector < vector < vector < double > > > resampled(N, vector < vector < double > > (N, vector < double > (n, 0.0)));
 	//define and initialise the containter for the unnormalised weights
 	vector < vector < double > > un_weights(n, vector < double > (N, 0.0));
 	//define and initialise the container for the normalised weights
-	vector < vector < double > > weights(n, vector < double >(N, 0.0));
+	vector < vector < double > > weights(n, vector < double > (N, 0.0));
 
 	
 	
@@ -53,32 +55,35 @@ int main() {
 	//here we make the assumption that the first nest is never observed
 	//therefore I don't need to make a correction at initialization
 	for (int i = 0; i < n; i++) {
-		normal_distribution < double > normalDist1(0, sigmasq / (1 - pow(phi, 2) ) );
 		un_weights[i][0] = 1;
 		weights[i][0] = 1.0 / n;
-		sample[0][0][i] = normalDist1(generator);
-		corr_sample[0][0][i] = sample[0][0][i];
+		for (int j = 0; j < N; j++){	
+			sample[j][0][i] = X[0];
+			resampled[j][0][i] = X[0];
+			corr_sample[j][0][i] = X[0];
+		}
 	}
  
 	//Iterate	
 	for (int j = 1; j < N; j++) {
 		for (int i = 0; i < n; i++) {
 			vector < double > sum_vec;
-			//draw the next value for x from the transition distribution
-			normal_distribution < double > normalDist2( (phi * (resampled[j-1][j-1][i]) ), sigmasq);
-			sample[j][j][i] = normalDist2(generator);
-			corr_sample[j][j][i] = sample[j][j][i];
+			for (int k = 0; k < j; k++) { sample[j][k][i] = resampled[j - 1][k][i]; }
 			for (int k = 1; k < j + 1; k++) {
-				sample[j][k - 1][i] = corr_sample[j - 1][k - 1][i];
+				if (mat_B[j][k] == 0) {
+					//draw the next value for x from the transition distribution
+					normal_distribution < double > normalDist1( ( phi * ( sample[j][k - 1][i]) ), sigmasq );
+					sample[j][k][i] = normalDist1(generator);
+					corr_sample[j][k][i] = sample[j][k][i];
+				}
 				//make the corrections
-				if (mat_B[j][k - 1] == 1) {corr_sample[j][k - 1][i] = X[k - 1]; }
-				else { corr_sample[j][k - 1][i] = corr_sample[j - 1][k - 1][i]; }
+				if (mat_B[j][k] == 1) { corr_sample[j][k][i] = X[k]; }
 				//calculate the weights
 				if ( ( (mat_B[j - 1][k - 1] == mat_B[j][k - 1]) ) ) {
-					double num_arg = pow( (corr_sample[j][k][i] - phi * corr_sample[j][k-1][i]), 2);
-					double den_arg = pow( (sample[j][k][i] - phi * sample[j][k - 1][i]), 2);
+					double num_arg = pow( ( corr_sample[j][k][i] - phi * corr_sample[j][k - 1][i] ), 2 );
+					double den_arg = pow( ( sample[j][k][i] - phi * sample[j][k - 1][i] ), 2 );
 					double log_elem = den_arg - num_arg;
-					sum_vec.push_back(log_elem);
+					sum_vec.push_back( log_elem );
 				}
 			}
 			double sum_of_logs = accumulate(sum_vec.begin(), sum_vec.end(), 0.0);
@@ -98,6 +103,8 @@ int main() {
 		for (int i = 0; i < n; i++) {
 			drawing_vector[i] = weights[i][j];
 		}
+		cout << "drawing vector " << endl;
+		F_print_vector(drawing_vector);
 		for (int k = 0; k < j + 1; k++){
 			for (int i = 0; i < n; i++) {
 				discrete_distribution < int > discrete(drawing_vector.begin(), drawing_vector.end());
@@ -158,7 +165,10 @@ int main() {
 	outparam << sigmasq << "," << phi << "," << p << "," << N << "," << n << "," << endl;
 	outparam.close();
 
+	cout << "end of corrections" << endl;
 
+	//this function is the gold standard for the AR(1) model
+	//it is generated in AR1_sim_and_int.cpp
 	gold();
 
 	return 0;
