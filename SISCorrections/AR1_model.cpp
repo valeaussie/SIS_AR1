@@ -10,13 +10,13 @@
 using namespace std;
 
 const double sigmasq = 1;
-const float phi = -0.5;
+const float phi = -0.9;
 const float p = 0.1;
 const double N = 30;
 
 vector < double > X;
-vector < int > vect_obs_N;
-vector < vector < int > > mat_B;
+vector < int > vect_Z;
+vector < vector < int > > mat_Z;
 
 /* this is the code to simulate the AR(1) model and find the vector of the observations.
 Sampling from a normal distribution I populate a vector X of events.
@@ -47,42 +47,43 @@ int ar1() {
 
 	
 	//draw from a Bernoulli distribution to simulate our knowledge of the system
-	//if 0 draw again and store results in a vector "vec_B"
-	//create matrix "mat_B" with vectors "vec_B"
+	//if 0 draw again and store results in a vector "vec_Z"
+	//create matrix "mat_Z" with vectors "vec_Z"
 	//vector <  vector < int > > mat_B;
-	vector < int > vec_B;
-	vector < int > new_vec_B;
+	vector < int > vec_Z;
+	vector < int > new_vec_Z;
 	bernoulli_distribution ber(p);
 	int first_b = ber(generator);
-	vec_B.push_back(first_b);
+	vec_Z.push_back(first_b);
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < i; j++) {
-			if (vec_B[j] == 0) {
+			if (vec_Z[j] == 0) {
 				int b_again = ber(generator);
-				new_vec_B.push_back(b_again);
+				new_vec_Z.push_back(b_again);
 			}
-			else { new_vec_B.push_back(1); }
+			else { new_vec_Z.push_back(1); }
 		}
 		int last_b = ber(generator);
-		new_vec_B.push_back(last_b);
-		mat_B.push_back(new_vec_B);
-		vec_B = new_vec_B;
-		new_vec_B.clear();
+		new_vec_Z.push_back(last_b);
+		mat_Z.push_back(new_vec_Z);
+		vec_Z = new_vec_Z;
+		new_vec_Z.clear();
 	}
-	for (const size_t i : mat_B[N - 1]) {
-		vect_obs_N.push_back(i);
+	for (const size_t i : mat_Z[N - 1]) {
+		vect_Z.push_back(i);
 	}
 
 	//for simplicity we assume we always observe the first element
-	mat_B[0][0] = 1;
-	
+	for (int i = 0; i < N; i++) {
+		mat_Z[i][0] = 1;
+	}
 
 
 	//Creating a dat file with the values of the vector of the observed events "vect_obs_N"
 	//at the current time N calling it "vector_Z.dat"
-	ofstream outFile1("./vector_B.dat");
+	ofstream outFile1("./vector_Z.dat");
 	//outFile1 << endl;
-	for (int n : mat_B[N-1]) {
+	for (int n : mat_Z[N-1]) {
 		outFile1 << n << endl;
 	}
 	outFile1.close();

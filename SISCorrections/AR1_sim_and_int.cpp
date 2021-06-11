@@ -68,14 +68,14 @@ int gold() {
 
 
 	//case 1: One observation at the beginning One at the end
-	if ( (vect_obs_N[0] == 1) && (vect_obs_N[N-1] == 1) ) {
+	if ( (vect_Z[0] == 1) && (vect_Z[N - 1] == 1) ) {
 		cout << "case 1" << endl;
 		for ( size_t i = 1; i < N; i++ ){
-			if ( (vect_obs_N[i] == vect_obs_N[i-1]) && (vect_obs_N[i] == 1)) {
+			if ( (vect_Z[i] == vect_Z[i - 1]) && (vect_Z[i] == 1)) {
 			expectations.push_back(X[i]);
 			variances.push_back(0);
 			}
-			else if ((vect_obs_N[i] == vect_obs_N[i-1]) && (vect_obs_N[i] == 0)){}
+			else if ((vect_Z[i] == vect_Z[i-1]) && (vect_Z[i] == 0)){}
 			else {
 				//the missing vector will contain two elements:
 				//the last observed, and the next observed.
@@ -124,7 +124,7 @@ int gold() {
 						double variance = sigmasq * sum1*sum2 / den;
 						variances.push_back(variance);
 					}
-					expectations.push_back(X[m]);
+					expectations.push_back(X[m - 1]);
 					variances.push_back(0);
 					missing.clear();
 				}
@@ -139,23 +139,23 @@ int gold() {
 
 	
 	//case 2: One observation at the beginning None at the end
-	else if ( (vect_obs_N[0] == 1) && (vect_obs_N[N-1] == 0) ) {
+	else if ( (vect_Z[0] == 1) && (vect_Z[N-1] == 0) ) {
 		cout << "case 2" << endl;
 		int lastvalue = 0;
 		for (int i = N-1; i >= 0; --i){
 			//lastvalue is the last observed value. Its index is i
 			//for example if the last observed value is 29 the index is 28
-			if ( vect_obs_N[i] == 1 ) {
+			if ( vect_Z[i] == 1 ) {
 				lastvalue = i+1;
 				break;
 		    }
 		}
 		for (int i = 1; i < lastvalue; i++ ){
-			if ( (vect_obs_N[i] == vect_obs_N[i-1]) && (vect_obs_N[i] == 1)) {
+			if ( (vect_Z[i] == vect_Z[i-1]) && (vect_Z[i] == 1)) {
 				expectations.push_back(X[i]);
 				variances.push_back(0);
 			}
-			else if ((vect_obs_N[i] == vect_obs_N[i-1]) && (vect_obs_N[i] == 0)){}
+			else if ((vect_Z[i] == vect_Z[i-1]) && (vect_Z[i] == 0)){}
 			else {
 				//the missing vector will contain two elements:
 				//the last observed, and the next observed.
@@ -163,7 +163,7 @@ int gold() {
 				//calculations for variances and expectations of middle points
 				if (missing.size() == 2) {
 					int tau = missing[0];
-					int m = missing[1]+1;
+					int m = missing[1] + 1;
 					//calculating the denomiator for variances and expectationsor
 					double den = F_den(m, tau, phi);
 					//calculating the numerator of expectations and variances
@@ -204,7 +204,7 @@ int gold() {
 						double variance = sigmasq*sum1*sum2 / den;
 						variances.push_back(variance);
 					}			
-					expectations.push_back(X[m]);
+					expectations.push_back(X[m - 1]);
 					variances.push_back(0);
 					missing.clear();
 				}

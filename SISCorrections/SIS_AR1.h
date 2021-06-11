@@ -11,8 +11,8 @@ extern const float p;
 extern const double N;
 
 extern vector < double > X;
-extern vector < int > vect_obs_N;
-extern vector <vector < int > > mat_B;
+extern vector < int > vect_Z;
+extern vector <vector < int > > mat_Z;
 
 //DEFINITIONS
 
