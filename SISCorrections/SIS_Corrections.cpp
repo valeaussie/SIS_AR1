@@ -36,7 +36,7 @@ int main() {
 	//DEFINITIONS
 
 	//define the number of particles
-	int n = 1000;
+	int n = 3000;
 	//define the container for the sampled events and the sampled observations (0s and 1s)
 	vector < vector < vector < double > > > sample(N, vector < vector < double > > (N, vector < double > (n, 0.0)));
 	//define the container for the new sampled events and the new sampled observations (0s and 1s)
@@ -68,27 +68,30 @@ int main() {
 	for (int j = 1; j < N; j++) {
 		for (int i = 0; i < n; i++) {
 			vector < double > sum_vec;
-			for (int k = 0; k < j; k++) { sample[j][k][i] = resampled[j - 1][k][i]; }
-			for (int k = 1; k < j + 1; k++) {
-				if ( mat_Z[j][k] == 0 ) {
-					//draw the next value of X from the transition distribution
-					normal_distribution < double > normalDist1( ( phi * ( sample[j][k - 1][i]) ), sigmasq );
-					sample[j][k][i] = normalDist1( generator );
-					corr_sample[j][k][i] = sample[j][k][i];
-				}
-				//make the corrections
-				if ( mat_Z[j][k] == 1 ) { corr_sample[j][k][i] = X[k]; }
-				//calculate the weights
-				//this condition ensures that we are only calculating the partial weights that are not 1
-				if ( (corr_sample[j][k][i] != sample[j][k][i]) || (corr_sample[j][k - 1][i] != sample[j][k - 1][i]) ) {
-					double num_arg = pow( ( corr_sample[j][k][i] - phi * corr_sample[j][k - 1][i] ), 2 );
-					double den_arg = pow( ( sample[j][k][i] - phi * sample[j][k - 1][i] ), 2 );
-					double log_elem =  ( 1/( 2*sigmasq ) ) * ( num_arg - den_arg );
-					sum_vec.push_back( log_elem );
-				}
+			for (int k = 0; k < j; k++) { 
+				sample[j][k][i] = resampled[j - 1][k][i];
+				corr_sample[j][k][i] = resampled[j - 1][k][i];
 			}
-			long long sum_of_logs = accumulate(sum_vec.begin(), sum_vec.end(), 0.0);
-			long long W = exp(sum_of_logs);
+			normal_distribution < double > normalDist1((phi * (sample[j][j-1][i])), sigmasq);
+			sample[j][j][i] = normalDist1(generator);
+			corr_sample[j][j][i] = sample[j][j][i];
+			//make the corrections
+			for (int k = 0; k < j + 1; k++) {
+				if (mat_Z[j][k] == 1) { corr_sample[j][k][i] = X[k]; }
+			}
+			//calculate the weights
+			//this condition ensures that we are only calculating the partial weights that are not 1
+			for (int k = 1; k < j + 1; k++) {
+				if ( (corr_sample[j][k][i] != sample[j][k][i]) || (corr_sample[j][k - 1][i] != sample[j][k - 1][i]) ) {
+					double num_arg = pow((corr_sample[j][k][i] - phi * corr_sample[j][k - 1][i]), 2);
+					double den_arg = pow((sample[j][k][i] - phi * sample[j][k - 1][i]), 2);
+					double log_elem = (1 / (2 * sigmasq)) * (num_arg - den_arg);
+					sum_vec.push_back(log_elem);
+				}
+				else { sum_vec.push_back(0); }
+			}			
+			double sum_of_logs = accumulate(sum_vec.begin(), sum_vec.end(), 0.0);
+			double W = exp(sum_of_logs);
 			un_weights[i][j] = W;
 		} 
 		//normalise the weights
@@ -104,16 +107,18 @@ int main() {
 		for (int i = 0; i < n; i++) {
 			drawing_vector[i] = weights[i][j];
 		}
-		cout << "drawing vector " << endl;
 		F_print_vector(drawing_vector);
-		for (int k = 0; k < j + 1; k++){
-			for (int i = 0; i < n; i++) {
-				discrete_distribution < int > discrete(drawing_vector.begin(), drawing_vector.end());
-				resampled[j][k][i] = corr_sample[j][k][discrete(generator)];
+		for (int i = 0; i < n; i++) {
+			for (int k = 0; k < j + 1; k++) {
+				resampled[j][k][i] = corr_sample[j][k][i];
 			}
 		}
+		for (int i = 0; i < n; i++) {
+			discrete_distribution < int > discrete(drawing_vector.begin(), drawing_vector.end());
+			resampled[j][j][discrete(generator)];
+		}
 	}
-
+	/*
 	cout << "sample" << endl;
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < n; j++) {
@@ -144,7 +149,7 @@ int main() {
 	}
 	cout << "matrix B" << endl;
 	F_print_matrix(mat_Z);
-
+	*/
 
 	//Create a .csv file with the resampled particles (transposing)
 	ofstream outFile("./resampled_000.csv");
