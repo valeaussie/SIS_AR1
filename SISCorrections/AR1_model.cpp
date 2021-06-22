@@ -10,7 +10,7 @@
 using namespace std;
 
 const double sigmasq = 1;
-const float phi = -0.9;
+const float phi = -0.8;
 const float p = 0.01;
 const double N = 30;
 
@@ -49,12 +49,13 @@ int ar1() {
 	//draw from a Bernoulli distribution to simulate our knowledge of the system
 	//if 0 draw again and store results in a vector "vec_Z"
 	//create matrix "mat_Z" with vectors "vec_Z"
-	//vector <  vector < int > > mat_B;
+	//vector <  vector < int > > mat_Z;
 	vector < int > vec_Z;
 	vector < int > new_vec_Z;
 	bernoulli_distribution ber(p);
 	int first_b = 1;
 	vec_Z.push_back(first_b);
+	new_vec_Z.push_back(first_b);
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < i; j++) {
 			if (vec_Z[j] == 0) {

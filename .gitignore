@@ -607,3 +607,9 @@ __pycache__/
 /SISCorrections/vector_X.dat
 /SISCorrections/resampled_000.csv
 /SISCorrections/parameters.csv
+/SISCorrections/R6_Runs/R6_vector_Z_m009.dat
+/SISCorrections/R6_Runs/R6_vector_X_m009.dat
+/SISCorrections/R6_Runs/R6_resampled_m009.csv
+/SISCorrections/R6_Runs/R6_parameters_m009.csv
+/SISCorrections/R6_Runs/R6_AR1_interp_var_m009.csv
+/SISCorrections/R6_Runs/R6_AR1_interp_exp_m009.csv
