@@ -10,8 +10,8 @@
 using namespace std;
 
 const double sigmasq = 1;
-const float phi = 0.9;
-const float p = 0.1;
+const float phi = -0.9;
+const float p = 0.01;
 const double N = 30;
 
 vector < double > X;
@@ -53,7 +53,7 @@ int ar1() {
 	vector < int > vec_Z;
 	vector < int > new_vec_Z;
 	bernoulli_distribution ber(p);
-	int first_b = ber(generator);
+	int first_b = 1;
 	vec_Z.push_back(first_b);
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < i; j++) {

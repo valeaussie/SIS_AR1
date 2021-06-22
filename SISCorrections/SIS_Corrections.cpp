@@ -36,7 +36,7 @@ int main() {
 	//DEFINITIONS
 
 	//define the number of particles
-	int n = 3000;
+	int n = 1000;
 	//define the container for the sampled events and the sampled observations (0s and 1s)
 	vector < vector < vector < double > > > sample(N, vector < vector < double > > (N, vector < double > (n, 0.0)));
 	//define the container for the new sampled events and the new sampled observations (0s and 1s)
@@ -107,7 +107,6 @@ int main() {
 		for (int i = 0; i < n; i++) {
 			drawing_vector[i] = weights[i][j];
 		}
-		F_print_vector(drawing_vector);
 		for (int i = 0; i < n; i++) {
 			for (int k = 0; k < j + 1; k++) {
 				resampled[j][k][i] = corr_sample[j][k][i];
