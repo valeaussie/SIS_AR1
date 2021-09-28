@@ -10,9 +10,9 @@
 using namespace std;
 
 const double sigmasq = 1;
-const float phi = -0.8;
-const float p = 0.01;
-const double N = 30;
+const float phi = 0.1;
+const float p = 0.03;
+const double N = 20;
 
 vector < double > X;
 vector < int > vect_Z;

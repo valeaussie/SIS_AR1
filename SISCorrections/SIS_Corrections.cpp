@@ -86,7 +86,8 @@ int main() {
 					double num_arg = pow((corr_sample[j][k][i] - phi * corr_sample[j][k - 1][i]), 2);
 					double den_arg = pow((sample[j][k][i] - phi * sample[j][k - 1][i]), 2);
 					double log_elem = (1 / (2 * sigmasq)) * (num_arg - den_arg);
-					sum_vec.push_back(log_elem);
+					sum_vec.push_back(-log_elem);
+					//sum_vec.push_back(0);
 				}
 				else { sum_vec.push_back(0); }
 			}			
@@ -94,7 +95,8 @@ int main() {
 			double W = exp(sum_of_logs);
 			un_weights[i][j] = W;
 		} 
-		//normalise the weights
+		//normalise the weights (I don't think this step is needed for resampling)
+		//i.e. I think the discrete distribution takes care of that.
 		double sum_of_weights{ 0 };
 		for (int i = 0; i < n; i++) {
 			sum_of_weights = sum_of_weights + un_weights[i][j];
@@ -103,6 +105,7 @@ int main() {
 			weights[i][j] = un_weights[i][j] / sum_of_weights;
 		}
 		//resampling
+		/*
 		vector < double > drawing_vector(n, 0.0);
 		for (int i = 0; i < n; i++) {
 			drawing_vector[i] = weights[i][j];
@@ -115,6 +118,34 @@ int main() {
 		for (int i = 0; i < n; i++) {
 			discrete_distribution < int > discrete(drawing_vector.begin(), drawing_vector.end());
 			resampled[j][j][discrete(generator)];
+		}
+		*/
+		vector < double > drawing_vector(n, 0.0);
+		for (int i = 0; i < n; i++) {
+			drawing_vector[i] = un_weights[i][j];
+		}
+		for (int i = 0; i < n; i++) {
+			for (int k = 0; k < j + 1; k++) {
+				resampled[j][k][i] = corr_sample[j][k][i];
+			}
+		}
+		double index_resampled;
+		std::vector < int > vec_index;
+		for (int i = 0; i < n; i++) {
+			std::discrete_distribution < int > discrete(drawing_vector.begin(), drawing_vector.end());
+			index_resampled = discrete(generator);
+			vec_index.push_back(index_resampled);
+		}
+		std::vector < std::vector < double > > newmatrix(N, std::vector < double >(n, 0.0));
+		for (int i = 0; i < n; i++) {
+			for (int k = 0; k < N; k++) {
+				newmatrix[k][i] = resampled[j][k][vec_index[i]];
+			}
+		}
+		for (int i = 0; i < n; i++) {
+			for (int k = 0; k < N; k++) {
+				resampled[j][k][i] = newmatrix[k][i];
+			}
 		}
 	}
 	/*
@@ -150,7 +181,7 @@ int main() {
 	F_print_matrix(mat_Z);
 	*/
 
-	//Create a .csv file with the resampled particles (transposing)
+	//Create a .csv file with the resampled particles
 	ofstream outFile("./resampled_000.csv");
 		outFile << endl;
 		vector < vector < double > > tresampled(N, vector < double >(n, 0.0));
