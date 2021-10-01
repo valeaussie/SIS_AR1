@@ -148,38 +148,7 @@ int main() {
 			}
 		}
 	}
-	/*
-	cout << "sample" << endl;
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < n; j++) {
-			cout << sample[29][i][j] << " ";
-		}
-		cout << endl;
-	}
-	cout << "corr_sample 1" << endl;
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < n; j++) {
-			cout << corr_sample[29][i][j] << " ";
-		}
-		cout << endl;
-	}
-	cout << "corr_sample 2" << endl;
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < n; j++) {
-			cout << corr_sample[28][i][j] << " ";
-		}
-		cout << endl;
-	}
-	cout << "resampled" << endl;
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < n; j++) {
-			cout << resampled[29][i][j] << " ";
-		}
-		cout << endl;
-	}
-	cout << "matrix B" << endl;
-	F_print_matrix(mat_Z);
-	*/
+	
 
 	//Create a .csv file with the resampled particles
 	ofstream outFile("./resampled_000.csv");
