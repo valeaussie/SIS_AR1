@@ -7,6 +7,7 @@
 #include <math.h>
 #include "SIS_AR1.h"
 #include "numeric"
+#include <time.h>
 
 using namespace std;
 
@@ -16,14 +17,15 @@ void F_print_vector(vector < double > v);
 void F_print_vector(vector < int > V);
 
 //This is the code for the method:
-//Firstly I calculate the lower triangular 3-dimentional matrices called for the sampled events
+//First calculates the lower triangular 3-dimentional matrices called for the sampled events
 //and for the samples with substitutions for every particle.
-//I then calculate the lower triangular 3-dimensional matrices for the sampled observations
-//and for the sampled observations with substitutions
-//Finally I calculate the weights.
+//then calculates weights.
+//then resample.
 
 
 int main() {
+
+	clock_t tStart = clock();
 
 	random_device rd;
 	mt19937 generator(rd());
@@ -66,12 +68,14 @@ int main() {
  
 	//Iterate	
 	for (int j = 1; j < N; j++) {
+		vector < double > vec_logw;
 		for (int i = 0; i < n; i++) {
 			vector < double > sum_vec;
 			for (int k = 0; k < j; k++) { 
 				sample[j][k][i] = resampled[j - 1][k][i];
 				corr_sample[j][k][i] = resampled[j - 1][k][i];
 			}
+			//generate next element
 			normal_distribution < double > normalDist1((phi * (sample[j][j-1][i])), sigmasq);
 			sample[j][j][i] = normalDist1(generator);
 			corr_sample[j][j][i] = sample[j][j][i];
@@ -87,16 +91,22 @@ int main() {
 					double den_arg = pow((sample[j][k][i] - phi * sample[j][k - 1][i]), 2);
 					double log_elem = (1 / (2 * sigmasq)) * (num_arg - den_arg);
 					sum_vec.push_back(-log_elem);
-					//sum_vec.push_back(0);
 				}
 				else { sum_vec.push_back(0); }
-			}			
+			}
+			
 			double sum_of_logs = accumulate(sum_vec.begin(), sum_vec.end(), 0.0);
-			double W = exp(sum_of_logs);
-			un_weights[i][j] = W;
-		} 
-		//normalise the weights (I don't think this step is needed for resampling)
-		//i.e. I think the discrete distribution takes care of that.
+			vec_logw.push_back(sum_of_logs);
+			//double W = exp(sum_of_logs);
+			//un_weights[i][j] = W;
+		}
+		double maxws = *max_element(begin(vec_logw), end(vec_logw));
+		for (int i = 0; i < n; i++) {
+			double w = exp(vec_logw[i] - maxws);
+			un_weights[i][j] = w;
+		}
+		vec_logw.clear();
+		//normalise the weights
 		double sum_of_weights{ 0 };
 		for (int i = 0; i < n; i++) {
 			sum_of_weights = sum_of_weights + un_weights[i][j];
@@ -104,25 +114,10 @@ int main() {
 		for (int i = 0; i < n; i++) {
 			weights[i][j] = un_weights[i][j] / sum_of_weights;
 		}
-		//resampling
-		/*
+		//resampling		
 		vector < double > drawing_vector(n, 0.0);
 		for (int i = 0; i < n; i++) {
 			drawing_vector[i] = weights[i][j];
-		}
-		for (int i = 0; i < n; i++) {
-			for (int k = 0; k < j + 1; k++) {
-				resampled[j][k][i] = corr_sample[j][k][i];
-			}
-		}
-		for (int i = 0; i < n; i++) {
-			discrete_distribution < int > discrete(drawing_vector.begin(), drawing_vector.end());
-			resampled[j][j][discrete(generator)];
-		}
-		*/
-		vector < double > drawing_vector(n, 0.0);
-		for (int i = 0; i < n; i++) {
-			drawing_vector[i] = un_weights[i][j];
 		}
 		for (int i = 0; i < n; i++) {
 			for (int k = 0; k < j + 1; k++) {
@@ -146,19 +141,19 @@ int main() {
 			for (int k = 0; k < N; k++) {
 				resampled[j][k][i] = newmatrix[k][i];
 			}
-		}
+		}	
 	}
 	
 
 	//Create a .csv file with the resampled particles
 	ofstream outFile("./resampled_000.csv");
-		outFile << endl;
-		vector < vector < double > > tresampled(N, vector < double >(n, 0.0));
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < N; j++) {
-				tresampled[j][i] = resampled[N - 1][j][i];
-				outFile << tresampled[j][i] << ",";
-			}
+	outFile << endl;
+	vector < vector < double > > tresampled(N, vector < double >(n, 0.0));
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < N; j++) {
+			tresampled[j][i] = resampled[N - 1][j][i];
+			outFile << tresampled[j][i] << ",";
+		}
 		outFile << endl;
 	}
 	outFile.close();
@@ -169,13 +164,14 @@ int main() {
 	outparam << sigmasq << "," << phi << "," << p << "," << N << "," << n << "," << endl;
 	outparam.close();
 
-	cout << "end of corrections" << endl;
 
 	//this function is the gold standard for the AR(1) model
 	//it is generated in AR1_sim_and_int.cpp
 	gold();
 
-	cout << "end of gold" << endl;
+
+	printf("Time taken: %.2fs\n", (double)(clock() - tStart) / CLOCKS_PER_SEC);
+
 
 	return 0;
 

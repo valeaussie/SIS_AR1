@@ -67,7 +67,7 @@ int gold() {
 	vector < double > variances{ 0 };
 
 
-	//case 1: One observation at the beginning One at the end
+	//case 1: One observation at the beginning one at the end
 	if ( (vect_Z[0] == 1) && (vect_Z[N - 1] == 1) ) {
 		cout << "case 1" << endl;
 		for ( size_t i = 1; i < N; i++ ){
@@ -138,7 +138,7 @@ int gold() {
 
 
 	
-	//case 2: One observation at the beginning None at the end
+	//case 2: One observation at the beginning none at the end
 	else if ( (vect_Z[0] == 1) && (vect_Z[N-1] == 0) ) {
 		cout << "case 2" << endl;
 		int lastvalue = 0;
@@ -230,9 +230,7 @@ int gold() {
 		F_outExp(expectations);
 		F_outVar(variances);
 	}
-	
 	return 0;
-
 }
 
 

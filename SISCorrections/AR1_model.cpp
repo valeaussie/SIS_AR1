@@ -10,8 +10,8 @@
 using namespace std;
 
 const double sigmasq = 1;
-const float phi = 0.1;
-const float p = 0.03;
+const float phi = 0.3;
+const float p = 0.1;
 const double N = 20;
 
 vector < double > X;
@@ -27,8 +27,7 @@ the events that have been observed up to the time corresponding to the row numbe
 So, at time 0 I will have 1 element in the row that might or might not have been observed,
 at time 1 I will have two elements on the row, some observed, some not, and so on
 I will have 0s whenever the element have have not been yet obeserved.
-The values of the parameters at this stage are fixed and are sigma^2 = 1,
-phi = 0.5, p = 0.4 */
+ */
 
 
 int ar1() {
