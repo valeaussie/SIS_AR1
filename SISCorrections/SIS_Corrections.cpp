@@ -79,22 +79,53 @@ int main() {
 			normal_distribution < double > normalDist1((phi * (sample[j][j-1][i])), sigmasq);
 			sample[j][j][i] = normalDist1(generator);
 			corr_sample[j][j][i] = sample[j][j][i];
+			//sample again left neighbouiring point
+			for (int l = 1; l < j; l++) {
+				if (mat_Z[j][l] == 1 && mat_Z[j][l-1] != 1) {
+					normal_distribution < double > normalDist1((phi * X[l]), sigmasq);
+					sample[j][l-1][i] = normalDist1(generator);
+					corr_sample[j][l-1][i] = sample[j][l-1][i];
+				}
+			}
+			//sample again right neighbouiring point
+			for (int l = 0; l < j-1; l++) {
+				if (mat_Z[j][l] == 1 && mat_Z[j][l+1] != 1) {
+					normal_distribution < double > normalDist1((phi * X[l]), sigmasq);
+					sample[j][l+1][i] = normalDist1(generator);
+					corr_sample[j][l+1][i] = sample[j][l+1][i];
+				}
+			}
 			//make the corrections
 			for (int k = 0; k < j + 1; k++) {
 				if (mat_Z[j][k] == 1) { corr_sample[j][k][i] = X[k]; }
 			}
 			//calculate the weights
 			//this condition ensures that we are only calculating the partial weights that are not 1
+			double H{ 0 };
+			vector < double > vec_H;
+			for (int l = 1; l < j; l++) {
+				if (mat_Z[j][l] == 1 && mat_Z[j][l - 1] != 1) {
+					double left = pow(corr_sample[j][l][i], 2) - pow(sample[j][l - 1][i], 2);
+					vec_H.push_back(left);
+				}
+			}
+			for (int l = 0; l < j - 1; l++) {
+				if (mat_Z[j][l] == 1 && mat_Z[j][l + 1] != 1) {
+					double right = pow(corr_sample[j][l][i], 2) - pow(sample[j][l + 1][i], 2);
+					vec_H.push_back(right);
+				}
+			}
+			H = accumulate(vec_H.begin(), vec_H.end(), 0.0);
+			vec_H.clear();
 			for (int k = 1; k < j + 1; k++) {
 				if ( (corr_sample[j][k][i] != sample[j][k][i]) || (corr_sample[j][k - 1][i] != sample[j][k - 1][i]) ) {
 					double num_arg = pow((corr_sample[j][k][i] - phi * corr_sample[j][k - 1][i]), 2);
 					double den_arg = pow((sample[j][k][i] - phi * sample[j][k - 1][i]), 2);
-					double log_elem = (1 / (2 * sigmasq)) * (num_arg - den_arg);
-					sum_vec.push_back(-log_elem);
+					double log_elem = ( -1 / (2 * sigmasq)) * (num_arg - den_arg) + ((1 - pow(phi, 2))/ 2*sigmasq) * H;
+					sum_vec.push_back(log_elem);
 				}
 				else { sum_vec.push_back(0); }
-			}
-			
+			}		
 			double sum_of_logs = accumulate(sum_vec.begin(), sum_vec.end(), 0.0);
 			vec_logw.push_back(sum_of_logs);
 			//double W = exp(sum_of_logs);
